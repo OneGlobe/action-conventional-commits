@@ -2,15 +2,35 @@ name: "Conventional Commits"
 description: "Ensures that all commit messages are following the conventional-commits standard."
 inputs:
   GITHUB_TOKEN:
-    description: 'GitHub token'
+    description: "GitHub token"
     required: false
   allowed-commit-types:
-    description: 'Specify a comma separated list of allowed commit types'
-    default: 'feat,fix,docs,style,refactor,test,build,perf,ci,chore,revert,merge,wip'
+    description: "Specify a comma separated list of allowed commit types"
+    default: "build,chore,ci,docs,feat,fix,merge,perf,refactor,revert,style,test,wip"
     required: false
   include-pull-request-title:
-    description: 'Ensure the pull request title follows the conventional-commits standard'
-    default: 'false'
+    description: "Ensure the pull request title follows the conventional-commits standard"
+    default: "false"
+    required: false
+  include-commits:
+    description: "Ensure the commit messages follow the conventional-commits standard"
+    default: "false"
+    required: false
+  allow-merge-commits:
+    description: "Allows `Merge pull request` commits"
+    default: "true"
+    required: false
+  allow-revert-commits:
+    description: "Allows `Revert` commits"
+    default: "false"
+    required: false
+  allow-reapply-commits:
+    description: "Allows `Reapply` commits"
+    default: "false"
+    required: false
+  failure-message:
+    description: "The message to show when a commit does not follow the conventional-commits standard"
+    default: "❌ Commit does not follow the conventional-commits standard"
     required: false
 
 runs:
