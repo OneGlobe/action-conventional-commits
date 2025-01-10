@@ -62390,7 +62390,22 @@ __nccwpck_require__.d(__webpack_exports__, {
 });
 
 ;// CONCATENATED MODULE: ./src/isValidCommitMesage.ts
-const isValidCommitMessage = (message, availableTypes = []) => {
+const isException = (message, allowMergeCommits, allowRevertCommits, allowReapplyCommits) => {
+    if (allowMergeCommits && message.startsWith("Merge ")) {
+        return true;
+    }
+    if (allowRevertCommits && message.startsWith("Revert ")) {
+        return true;
+    }
+    if (allowReapplyCommits && message.startsWith("Reapply ")) {
+        return true;
+    }
+    return false;
+};
+const isValidCommitMessage = (message, availableTypes = [], allowMergeCommits, allowRevertCommits, allowReapplyCommits) => {
+    if (isException(message, allowMergeCommits, allowRevertCommits, allowReapplyCommits)) {
+        return true;
+    }
     let availableTypesString = availableTypes.join("|");
     let pattern = new RegExp(`^(?:${availableTypesString})` + // type
         `(?:\\([a-z0-9-]+\\))?` + // optional scope
@@ -62472,13 +62487,16 @@ const core = __nccwpck_require__(7484);
 function run() {
     return main_awaiter(this, void 0, void 0, function* () {
         try {
+            const allowMergeCommits = core.getBooleanInput("allow-merge-commits");
+            const allowReapplyCommits = core.getBooleanInput("allow-reapply-commits");
+            const allowRevertCommits = core.getBooleanInput("allow-revert-commits");
             const allowedCommitTypes = core.getInput("allowed-commit-types").split(",");
             const includeCommits = core.getBooleanInput("include-commits");
             const includePullRequestTitle = core.getBooleanInput("include-pull-request-title");
             if (includePullRequestTitle) {
                 core.info("🔎 Analyzing pull request title:");
                 const pullRequestTitle = context.payload.pull_request.title;
-                if (isValidCommitMesage(pullRequestTitle, allowedCommitTypes)) {
+                if (isValidCommitMesage(pullRequestTitle, allowedCommitTypes, allowMergeCommits, allowRevertCommits, allowReapplyCommits)) {
                     core.info(`✅ ${pullRequestTitle}`);
                 }
                 else {
@@ -62490,7 +62508,7 @@ function run() {
                 core.info(`🔎 Analyzing ${extractedCommits.length} commits:`);
                 for (let i = 0; i < extractedCommits.length; i++) {
                     let commit = extractedCommits[i];
-                    if (isValidCommitMesage(commit.message, allowedCommitTypes)) {
+                    if (isValidCommitMesage(commit.message, allowedCommitTypes, allowMergeCommits, allowRevertCommits, allowReapplyCommits)) {
                         core.info(`✅ ${commit.message}`);
                     }
                     else {
